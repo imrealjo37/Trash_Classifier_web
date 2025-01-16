@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Waste Classifier</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        /* Navigation Bar */
+        .navbar {
+            width: 100%;
+            background-color: #8d9e36;
+            color: white;
+            padding: 10px 20px;
+            font-size: 1.2rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .navbar h1 {
+            margin: 0;
+            font-size: 1.5rem;
+        }
+
+        .container {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: row-reverse;
+            padding: 20px;
+            gap: 20px;
+            background-color: #fff;
+        }
+
+        .image {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .image img {
+            max-width: 100%;
+            height: auto;
+        }
+
+        .text {
+            flex: 1;
+            padding: 20px;
+            color: #333;
+            font-size: 1.2rem;
+            line-height: 1.6;
+        }
+
+        .text h1 {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: black;
+            margin-bottom: 20px;
+        }
+
+        .text p {
+            font-size: 1.1rem;
+            color: #555;
+        }
+
+        .text button {
+            margin-top: 20px;
+            padding: 15px 40px;
+            font-size: 1.2rem;
+            color: white;
+            background-color: #8d9e36;
+            border: none;
+            border-radius: 30px;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .text button:hover {
+            background-color: #45a049;
+            transform: scale(1.05);
+        }
+
+        .text button:active {
+            transform: scale(0.95);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        /* Footer */
+        .footer {
+            text-align: center;
+            padding: 20px 0;
+            background-color: #f4f4f4;
+            font-size: 0.9rem;
+            color: #888;
+        }
+
+        /* Responsive design */
+        @media (max-width: 768px) {
+            .container {
+                flex-direction: column;
+                text-align: center;
+            }
+
+            .image img {
+                max-width: 100%;
+                margin-bottom: 20px;
+            }
+
+            .text h1 {
+                font-size: 2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation Bar -->
+    <div class="navbar">
+        <h1>Waste Classifier</h1>
+    </div>
+
+    <div class="container">
+        <div class="image">
+            <img src="icons/background.jpg" alt="Recycling illustration">
+        </div>
+        <div class="text">
+            <h1> Make a Difference, One Item at a Time! </h1>
+            <p>
+                ♻️ Ever wondered what to do with your trash? Learn to tell the difference between organic waste, paper, 
+                and plastic in just a few steps.  
+            </p>
+            <p>
+                🌱 With smart classification, you can recycle more efficiently and help reduce waste in our environment.  
+            </p>
+            <p>
+                ✨ Start today—every small action counts toward a cleaner, greener future! 💚
+            </p>
+            <button onclick="window.location.href='model_page.html'">Start Classifying 🚀</button>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <div class="footer">
+        &copy; 2025 Jo's Model.
+    </div>
+</body>
+</html>

@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trash Classifier</title>
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@3.20.0"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@teachablemachine/image@0.8.3/dist/teachablemachine-image.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            text-align: center;
+            background-image: url('icons/background2.png');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        header {
+            background-color: #a0d481;
+            color: white;
+            padding: 1rem;
+            font-size: 1.5rem;
+            width: 100%;
+            text-align: center;
+        }
+        .camera-container {
+            display: flex;
+            flex-direction: row;
+            justify-content: center;
+            align-items: center;
+            margin-top: 20px;
+        }
+        video {
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            margin-right: 20px;
+        }
+        #captured-image {
+            max-width: 400px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            margin-left: 20px;
+        }
+        .actions {
+            margin: 20px 0;
+        }
+        .actions button {
+            margin: 10px;
+            padding: 10px 20px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+        }
+        .actions button:hover {
+            background-color: #45a049;
+            transform: scale(1.05);
+        }
+        .actions button:active {
+            transform: scale(0.95);
+            box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.2);
+        }
+        .classes-section {
+            margin-top: 30px;
+            width: 80%;
+            background: rgba(255, 255, 255, 0.8);
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        .classes-list {
+            text-align: left;
+        }
+        .class-item {
+            font-size: 1.2rem;
+            margin: 5px 0;
+            display: flex;
+            justify-content: space-between;
+        }
+    </style>
+</head>
+<body>
+    <header> Trash Classifier - Recycle Smarter! ♻️</header>
+
+    <div class="camera-container">
+        <video id="camera" width="400" height="300" autoplay></video>
+        <img id="captured-image" alt="Captured frame from video for classification">
+    </div>
+
+    <div class="actions">
+        <button id="reset-button">Reset All</button>
+        <button id="capture-button">Capture Image</button>
+    </div>
+
+    <div class="classes-section">
+        <h3>Class Counters</h3>
+        <div class="classes-list" id="classes-list">
+            <!-- Classes and counters will be generated dynamically here -->
+        </div>
+    </div>
+
+    <script>
+        const URL = "https://teachablemachine.withgoogle.com/models/P1V83g6V3/";
+        const video = document.getElementById('camera');
+        const capturedImage = document.getElementById('captured-image');
+        const classesList = document.getElementById('classes-list');
+        const captureButton = document.getElementById('capture-button');
+        const resetButton = document.getElementById('reset-button');
+        let model;
+
+        // List of classes and their counters
+        const classesCounters = {};
+
+        // Load the model
+        async function loadModel() {
+            try {
+                const modelURL = `${URL}model.json`;
+                const metadataURL = `${URL}metadata.json`;
+                model = await tmImage.load(modelURL, metadataURL);
+                initializeClasses(model.getClassLabels());
+            } catch (error) {
+                console.error('Error loading model:', error);
+            }
+        }
+
+        // Initialize the classes with counters
+        function initializeClasses(classLabels) {
+            classLabels.forEach(label => {
+                classesCounters[label] = 0; // Initialize each class counter to 0
+                const classItem = document.createElement('div');
+                classItem.className = 'class-item';
+                classItem.id = `class-${label}`;
+                classItem.innerHTML = `<span>${label}</span><span>0</span>`;
+                classesList.appendChild(classItem);
+            });
+        }
+
+        // Update class counter
+        function updateClassCounter(className) {
+            if (classesCounters[className] !== undefined) {
+                classesCounters[className]++;
+                const classItem = document.getElementById(`class-${className}`);
+                if (classItem) {
+                    classItem.innerHTML = `<span>${className}</span><span>${classesCounters[className]}</span>`;
+                }
+            }
+        }
+
+        // Reset all counters
+        resetButton.addEventListener('click', () => {
+            for (let className in classesCounters) {
+                classesCounters[className] = 0;
+                const classItem = document.getElementById(`class-${className}`);
+                if (classItem) {
+                    classItem.innerHTML = `<span>${className}</span><span>0</span>`;
+                }
+            }
+            capturedImage.src = ""; // Clear the captured image
+        });
+
+        // Capture and classify image
+        captureButton.addEventListener('click', async () => {
+            if (!model) return;
+
+            // Capture image
+            const canvas = document.createElement('canvas');
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+            const ctx = canvas.getContext('2d');
+            ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+            capturedImage.src = canvas.toDataURL('image/png');
+
+            // Classify image
+            const prediction = await model.predict(video);
+            const bestPrediction = prediction.reduce((best, p) => p.probability > best.probability ? p : best);
+
+            updateClassCounter(bestPrediction.className);
+        });
+
+        // Initialize the camera
+        navigator.mediaDevices.getUserMedia({ video: true })
+            .then((stream) => {
+                video.srcObject = stream;
+            })
+            .catch((err) => {
+                console.error("Error accessing the camera:", err);
+            });
+
+        // Load the model on page load
+        loadModel();
+    </script>
+</body>
+</html>
